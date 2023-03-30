@@ -12,6 +12,19 @@ class Genre(NameAndSlug):
     pass
 
 
+class TitleGenre(models.Model):
+    """Модель взаимосвязи произведения и жанров."""
+    title = models.ForeignKey(
+        'Title',
+        on_delete=models.CASCADE
+    )
+    genre = models.ForeignKey(
+        'Genre',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+
 class Title(models.Model):
     """Модель произведения."""
     name = models.CharField(
@@ -26,11 +39,9 @@ class Title(models.Model):
         null=True,
         verbose_name='Описание'
     )
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
+        through=TitleGenre,
         verbose_name='Жанр'
     )
     category = models.ForeignKey(

@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Genre, Category
+from .models import Genre, Category, Title
 
 
 @admin.register(Genre)
-class CommentAdmin(admin.ModelAdmin):
+class GenreAdmin(admin.ModelAdmin):
     list_display = [
         'name',
         'slug',
@@ -11,8 +11,17 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class CommentAdmin(admin.ModelAdmin):
+class CategoryAdmin(admin.ModelAdmin):
     list_display = [
         'name',
         'slug',
+    ]
+
+
+@admin.register(Title)
+class TitleAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'year',
+        'description',
     ]
