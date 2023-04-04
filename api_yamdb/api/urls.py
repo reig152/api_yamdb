@@ -13,5 +13,6 @@ router.register(r'categories', CategoryViewSet, basename='categories')
 router.register(r'titles', TitleViewSet, basename='titles')
 
 urlpatterns = [
+    path('v1/auth/', include('users.urls')),
     path('v1/', include(router.urls)),
 ]

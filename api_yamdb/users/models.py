@@ -33,8 +33,12 @@ class CustomUser(AbstractUser):
     password = models.CharField(max_length=128, blank=True)
     confirmation_code = models.CharField(
         max_length=6,
-        default=confirmation_code_generate(),
+        default=None
     )
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        self.confirmation_code = confirmation_code_generate()
+        super(CustomUser, self).save(*args, **kwargs)
