@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from rest_framework import serializers
 from reviews.models import Genre, Category, Title, Review, Comment
+
+User = get_user_model()
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -92,3 +95,29 @@ class CommentSerializer(serializers.ModelSerializer):
             'review',
             'pub_date'
         )
+
+
+class UserAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        ]
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError('Запрещено использовать me '
+                                              'в качестве username!')
+        return value
+
+
+class UserMeSerializer(UserAdminSerializer):
+    class Meta:
+        model = User
+        fields = UserAdminSerializer.Meta.fields
+        read_only_fields = ('role',)

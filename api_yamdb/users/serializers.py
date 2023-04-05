@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 User = get_user_model()
@@ -19,3 +20,10 @@ class SignUpSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     confirmation_code = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        user = get_object_or_404(User, username=attrs['username'])
+        if user.confirmation_code != attrs['confirmation_code']:
+            raise serializers.ValidationError('Невалидный код!')
+        return attrs
