@@ -1,9 +1,8 @@
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
+from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 
 
-class MixinGenresCategories(CreateModelMixin, DestroyModelMixin,
-                            ListModelMixin, GenericViewSet):
+class MixinGenresCategories(mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                            mixins.ListModelMixin, GenericViewSet):
     """Миксин для выполнения 3 методов."""
     pass
