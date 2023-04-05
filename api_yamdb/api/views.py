@@ -6,7 +6,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
-from . import serializers
+from .serializers import (GenreSerializer, CategorySerializer,
+                          TitleReadOnlySerializer, TitleWriteSerializer,
+                          ReviewSerializer, CommentSerializer,
+                          UserAdminSerializer, UserMeSerializer)
 from reviews.models import Genre, Category, Title, Review
 from .mixins import MixinGenresCategories
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
@@ -23,7 +26,7 @@ class GenreViewSet(MixinGenresCategories):
     Удаление жанра.
     """
     queryset = Genre.objects.all()
-    serializer_class = serializers.GenreSerializer
+    serializer_class = GenreSerializer
     lookup_field = 'slug'
     search_fields = ['=name']
     filter_backends = [filters.SearchFilter]
@@ -37,7 +40,7 @@ class CategoryViewSet(MixinGenresCategories):
     Удаление категории.
     """
     queryset = Category.objects.all()
-    serializer_class = serializers.CategorySerializer
+    serializer_class = CategorySerializer
     lookup_field = 'slug'
     search_fields = ['=name']
     filter_backends = [filters.SearchFilter]
@@ -58,8 +61,8 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if 'retrieve' == self.action == 'list':
-            return serializers.TitleReadOnlySerializer
-        return serializers.TitleWriteSerializer
+            return TitleReadOnlySerializer
+        return TitleWriteSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -116,7 +119,7 @@ class UserAdminViewSet(viewsets.ModelViewSet):
     Метод 'PUT' недоступен. Реализован поиск по username.
     """
     queryset = User.objects.all()
-    serializer_class = serializers.UserAdminSerializer
+    serializer_class = UserAdminSerializer
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
@@ -138,12 +141,12 @@ def users_me(request):
     """
     user = request.user
     if request.method == 'PATCH':
-        serializer = serializers.UserMeSerializer(user,
-                                                  data=request.data,
-                                                  partial=True)
+        serializer = UserMeSerializer(user,
+                                      data=request.data,
+                                      partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    serializer = serializers.UserMeSerializer(user)
+    serializer = UserMeSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
