@@ -71,7 +71,7 @@ class Review(models.Model):
         auto_now_add=True,
         db_index=True
     )
-    score = models.SmallIntegerField(
+    score = models.PositiveSmallIntegerField(
         default=0,
         validators=[MaxValueValidator(10),
                     MinValueValidator(1)]

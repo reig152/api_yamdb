@@ -3,14 +3,18 @@ import csv
 from django.conf import settings
 from django.core.management import BaseCommand
 from reviews.models import (Category, Genre, TitleGenre,
-                            Title)
+                            Title, Review, Comment)
+from users.models import CustomUser
 
-# пока импортировал готовые модели
+
 MODELSDICT = {
+    CustomUser: 'users.csv',
     Category: 'category.csv',
     Genre: 'genre.csv',
     Title: 'titles.csv',
-    TitleGenre: 'genre_title.csv',
+    Review: 'review.csv',
+    Comment: 'comments.csv',
+    TitleGenre: 'genre_title.csv'
 }
 
 

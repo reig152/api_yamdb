@@ -1,14 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status, viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from . import serializers
 from reviews.models import Genre, Category, Title, Review
 from .mixins import MixinGenresCategories
-from .permissions import IsAdmin, IsAuthorOrReadOnly
+from .permissions import (IsAdmin, IsAdminOrReadOnly,
+                          IsAuthorOrAdminOrReadOnly)
+from .filters import TitleFilter
 
 User = get_user_model()
 
@@ -22,6 +25,9 @@ class GenreViewSet(MixinGenresCategories):
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     lookup_field = 'slug'
+    search_fields = ['=name']
+    filter_backends = [filters.SearchFilter]
+    permission_classes = [IsAdminOrReadOnly, ]
 
 
 class CategoryViewSet(MixinGenresCategories):
@@ -33,6 +39,9 @@ class CategoryViewSet(MixinGenresCategories):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
+    search_fields = ['=name']
+    filter_backends = [filters.SearchFilter]
+    permission_classes = [IsAdminOrReadOnly, ]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -43,6 +52,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     Удаление произведения.
     """
     queryset = Title.objects.all()
+    permission_classes = [IsAdminOrReadOnly, ]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if 'retrieve' == self.action == 'list':
@@ -57,8 +69,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     Обновление отзыва;
     Удаление отзыва.
     """
-    serializer_class = serializers.ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
 
     def get_queryset(self):
         pk = self.kwargs.get('title_id')
@@ -78,8 +90,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     Обновление  комментария;
     Удаление  комментария.
     """
-    serializer_class = serializers.CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
 
     def get_queryset(self):
         pk = self.kwargs.get('review_id')
@@ -89,7 +101,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         pk = self.kwargs.get('review_id')
         review = get_object_or_404(Review, pk=pk)
-        serializer.save(author=self.request.user, reviewt=review)
+        serializer.save(author=self.request.user, review=review)
 
 
 class UserAdminViewSet(viewsets.ModelViewSet):
