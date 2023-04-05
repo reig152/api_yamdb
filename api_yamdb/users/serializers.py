@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from .models import UserConfirmationCode
+
 User = get_user_model()
 
 
@@ -24,6 +26,10 @@ class TokenSerializer(serializers.Serializer):
     def validate(self, attrs):
         super().validate(attrs)
         user = get_object_or_404(User, username=attrs['username'])
-        if user.confirmation_code != attrs['confirmation_code']:
+        if not UserConfirmationCode.objects.filter(user=user).exists():
+            raise serializers.ValidationError('Код подтверждения '
+                                              'ранее не запрашивался.')
+        if (user.confirmation_code.confirmation_code
+                != attrs['confirmation_code']):
             raise serializers.ValidationError('Невалидный код!')
         return attrs
