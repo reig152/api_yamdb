@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from reviews.models import Genre, Category, Title, Review, Comment
 
@@ -27,10 +28,17 @@ class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True,
                             read_only=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if rating is None:
+            return None
+        return round(rating)
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -73,6 +81,17 @@ class ReviewSerializer(serializers.ModelSerializer):
             'title',
             'pub_date'
         )
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        user = self.context['request'].user
+        title_id = self.context['request'].resolver_match.kwargs['title_id']
+        title = get_object_or_404(Title, id=title_id)
+        request_method = self.context['request'].method != 'PATCH'
+        if (Review.objects.filter(author=user, title=title).exists()
+                and request_method):
+            raise serializers.ValidationError('Уже есть!')
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):

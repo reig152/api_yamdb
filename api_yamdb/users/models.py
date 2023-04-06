@@ -1,21 +1,12 @@
-from random import randint
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 
 CHOICES_ROLE = (
     ('user', 'user'),
     ('moderator', 'moderator'),
     ('admin', 'admin'),
 )
-
-
-def confirmation_code_generate():
-    confirmation_code = ''
-    for i in range(6):
-        num = str(randint(1, 9))
-        confirmation_code += num
-    return confirmation_code
 
 
 class CustomUser(AbstractUser):
@@ -31,19 +22,18 @@ class CustomUser(AbstractUser):
         default='user'
     )
     password = models.CharField(max_length=128, blank=True)
-    confirmation_code = models.CharField(
-        max_length=6,
-        default=None,
-        blank=True,
-        null=True
-    )
 
     def __str__(self):
         return self.username
 
+    def clean(self):
+        if self.username == 'me':
+            raise ValidationError('Запрещено использовать me '
+                                  'в качестве username!')
+
     def save(self, *args, **kwargs):
-        self.confirmation_code = confirmation_code_generate()
-        super(CustomUser, self).save(*args, **kwargs)
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def is_user(self):
         if self.role == 'user':
@@ -59,3 +49,17 @@ class CustomUser(AbstractUser):
         if self.role == 'admin':
             return True
         return False
+
+
+class UserConfirmationCode(models.Model):
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='confirmation_code',
+        primary_key=True
+    )
+    confirmation_code = models.CharField(
+        max_length=6,
+        default=None,
+        null=True,
+    )
