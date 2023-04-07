@@ -1,7 +1,7 @@
 from django.db import models
 from core.models import NameAndSlug
 from users.models import CustomUser
-from .validators import max_value_current_year
+from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
@@ -36,7 +36,12 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         verbose_name='Год выпуска',
-        validators=[max_value_current_year],
+        validators=[
+            MaxValueValidator(
+                timezone.now().year,
+                'Год произведения не должен быть больше текущего.'
+            )
+        ],
         db_index=True
     )
     description = models.TextField(
@@ -76,8 +81,8 @@ class Review(models.Model):
     )
     score = models.PositiveSmallIntegerField(
         default=0,
-        validators=[MaxValueValidator(10),
-                    MinValueValidator(1)]
+        validators=[MaxValueValidator(10, 'Максимальная оценка - 10'),
+                    MinValueValidator(1, 'Минимальная оценка - 1.')]
     )
 
     class Meta:
