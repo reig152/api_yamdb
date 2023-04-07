@@ -11,7 +11,7 @@ from .serializers import (GenreSerializer, CategorySerializer,
                           TitleReadOnlySerializer, TitleWriteSerializer,
                           ReviewSerializer, CommentSerializer,
                           UserAdminSerializer, UserMeSerializer)
-from reviews.models import Genre, Category, Title, Review
+from reviews.models import Genre, Category, Title
 from .mixins import MixinGenresCategories
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorOrAdminOrReadOnly)
