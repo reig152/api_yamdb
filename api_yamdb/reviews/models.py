@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import NameAndSlug
 from users.models import CustomUser
+from .validators import max_value_current_year
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
@@ -34,7 +35,9 @@ class Title(models.Model):
         verbose_name='Название произведения'
     )
     year = models.IntegerField(
-        verbose_name='Год выпуска'
+        verbose_name='Год выпуска',
+        validators=[max_value_current_year],
+        db_index=True
     )
     description = models.TextField(
         blank=True,

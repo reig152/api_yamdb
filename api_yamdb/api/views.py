@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from django.views.generic.base import View
 from rest_framework import permissions, status, viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -54,7 +55,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     Обновление произведения;
     Удаление произведения.
     """
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).all()
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
