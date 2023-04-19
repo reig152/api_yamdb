@@ -49,9 +49,9 @@
 
 	{
 
-	"email": "string",
+		"email": "string",
 
-	"username": "string"
+		"username": "string"
 
 	}
 
@@ -61,9 +61,9 @@
 
 	{
 
-	"username": "string",
+		"username": "string",
 
-	"confirmation_code": "string"
+		"confirmation_code": "string"
 
 	}
 
@@ -71,7 +71,7 @@
 
 	{
 
-	"access": "string"
+		"access": "string"
 
 	}
 
