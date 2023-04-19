@@ -47,33 +47,33 @@
 
 - Запрос:
 
-	{
+		{
 
-		"email": "string",
+			"email": "string",
 
-		"username": "string"
+			"username": "string"
 
-	}
+		}
 
 - После этого на email придет код подтверждения, который вместе с username необходимо отправить POST запросом на эндпоинт/api/v1/auth/token/
 
 - Запрос:
 
-	{
+		{
 
-		"username": "string",
+			"username": "string",
 
-		"confirmation_code": "string"
+			"confirmation_code": "string"
 
-	}
+		}
 
 - Ответ:
 
-	{
+		{
 
-		"access": "string"
+			"access": "string"
 
-	}
+		}
 
 - Полученный токен используется для авторизации
 
